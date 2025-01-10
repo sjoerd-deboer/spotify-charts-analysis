@@ -1,4 +1,3 @@
-```markdown
 # Spark Data Analysis Pipeline
 
 This repository contains a PySpark-based data analysis pipeline for processing a dataset of music chart information. The pipeline includes filtering, grouping, and aggregating data, as well as calculating metrics like the average, median, minimum, and maximum values for specific questions.
@@ -25,41 +24,27 @@ This repository contains a PySpark-based data analysis pipeline for processing a
 Follow these steps to set up the dataset on the server:
 
 1. SSH into the server:
-   ```bash
    ssh [INSERT S NUMBER]@spark-head[INSERT CLUSTER NUMBER].eemcs.utwente.nl
-   ```
 2. Create a project directory:
-   ```bash
    mkdir project
    cd project
-   ```
 3. Install the Kaggle CLI:
-   ```bash
    pip install kaggle
-   ```
 4. Download the Spotify Charts dataset:
-   ```bash
    kaggle datasets download -d sunnykakar/spotify-charts-all-audio-data
-   ```
 5. Extract the dataset:
-   ```bash
    unzip spotify-charts-all-audio-data.zip
-   ```
 
 ### 2. Install Python Packages
 
 Install the required Python packages:
-```bash
-pip install pyspark tqdm
-```
+   pip install pyspark tqdm
 
 ## Usage
 
 1. **Prepare the Input Data**: Ensure the dataset is extracted and located at `/user/[INSERT S NUMBER]/project/merged_data.csv`.
 2. **Run the Script**:
-   ```bash
    python analysis_pipeline.py
-   ```
 3. **View Output**: The processed data will be saved as `question1.csv` and `question2.csv` in the working directory.
 
 ## Pipeline Steps
@@ -104,14 +89,3 @@ This UDF calculates the maximum number of sequential days a track remains in the
 ## Progress Tracking
 
 The script uses `tqdm` to display progress for each processing step.
-
-## Author
-
-[Your Name](https://github.com/your-profile)
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
-The new section on dataset installation has been added to guide users through downloading and preparing the required data. Let me know if you'd like any further adjustments!
