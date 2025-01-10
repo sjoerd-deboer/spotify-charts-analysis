@@ -1,3 +1,4 @@
+```markdown
 # Spark Data Analysis Pipeline
 
 This repository contains a PySpark-based data analysis pipeline for processing a dataset of music chart information. The pipeline includes filtering, grouping, and aggregating data, as well as calculating metrics like the average, median, minimum, and maximum values for specific questions.
@@ -19,6 +20,98 @@ This repository contains a PySpark-based data analysis pipeline for processing a
 
 ## Installation
 
-1. Clone the repository:
+### 1. Prepare the Dataset
+
+Follow these steps to set up the dataset on the server:
+
+1. SSH into the server:
    ```bash
-   git clone https://github.com/your-repo/spark-data-analysis.git
+   ssh [INSERT S NUMBER]@spark-head[INSERT CLUSTER NUMBER].eemcs.utwente.nl
+   ```
+2. Create a project directory:
+   ```bash
+   mkdir project
+   cd project
+   ```
+3. Install the Kaggle CLI:
+   ```bash
+   pip install kaggle
+   ```
+4. Download the Spotify Charts dataset:
+   ```bash
+   kaggle datasets download -d sunnykakar/spotify-charts-all-audio-data
+   ```
+5. Extract the dataset:
+   ```bash
+   unzip spotify-charts-all-audio-data.zip
+   ```
+
+### 2. Install Python Packages
+
+Install the required Python packages:
+```bash
+pip install pyspark tqdm
+```
+
+## Usage
+
+1. **Prepare the Input Data**: Ensure the dataset is extracted and located at `/user/[INSERT S NUMBER]/project/merged_data.csv`.
+2. **Run the Script**:
+   ```bash
+   python analysis_pipeline.py
+   ```
+3. **View Output**: The processed data will be saved as `question1.csv` and `question2.csv` in the working directory.
+
+## Pipeline Steps
+
+### 1. Data Loading
+- Load the input CSV file using PySpark.
+- Print the dataset size after loading.
+
+### 2. Filtering
+- Remove records from the "viral50" chart.
+- Exclude records with a release date earlier than 2017.
+
+### 3. Data Transformation
+- Select required columns: `track_id`, `region`, `release_date`, and `date`.
+- Group by `track_id` and `region` to aggregate dates and calculate the `first_chart_day`.
+
+### 4. Metric Calculations
+- Calculate `days_until_chart` as the difference between the release date and the first chart day.
+- Use a custom UDF to compute the maximum number of sequential days in the chart within a 3-day range.
+
+### 5. Aggregation
+- Compute the average, median, minimum, and maximum values for `days_until_chart` and `days_in_chart`.
+
+### 6. Export Results
+- Save the results for each analysis as CSV files.
+
+## File Structure
+
+- `analysis_pipeline.py`: Main script for the pipeline.
+- `question1.csv`: Metrics related to `days_until_chart`.
+- `question2.csv`: Metrics related to `days_in_chart`.
+
+## Custom UDF: `max_sequential_dates_3_days_apart`
+
+This UDF calculates the maximum number of sequential days a track remains in the chart, where each date is within 3 days of the previous one.
+
+### Logic:
+1. Sort the dates.
+2. Iterate through the sorted dates, checking if the difference between consecutive dates is less than 4 days.
+3. Count the length of the longest such sequence.
+
+## Progress Tracking
+
+The script uses `tqdm` to display progress for each processing step.
+
+## Author
+
+[Your Name](https://github.com/your-profile)
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```
+
+The new section on dataset installation has been added to guide users through downloading and preparing the required data. Let me know if you'd like any further adjustments!
