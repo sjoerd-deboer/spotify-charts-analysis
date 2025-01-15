@@ -16,7 +16,6 @@ spark.sparkContext.setLogLevel('ERROR')
 def calculate_dataset_size(df, step_description):
     size = df.count()
     tqdm.write(f'[SUCCESS] {step_description}: Dataset size is {size}')
-    return size
 
 
 # UDF to calculate the max sequential dates 3 days apart
@@ -51,8 +50,9 @@ steps = [
     'Grouping by track_id and region',
     'Calculating first_chart_day column',
     'Calculating days_until_chart column',
-    'Filtering records where release_date is before first_chart_day',
-    'Calculating dataset size (filtered)',
+    'Dataset after filtering records with null release_date',
+    'Dataset after filtering records with release_date before first_chart_day',
+    'Dataset after filtering records with release_date as "0000"',
     'Finding the global average, median, min, and max for question1',
     'Saving question1.csv',
     'Calculating maximum number of sequential days in charts',
@@ -72,7 +72,7 @@ step += 1
 
 # Step: Calculate dataset size (initial)
 progress_bar.set_description(steps[step])
-dataset_size = calculate_dataset_size(csv_path_df1, 'Initial dataset loaded')
+calculate_dataset_size(csv_path_df1, 'Initial dataset loaded')
 progress_bar.update(1)
 step += 1
 
@@ -84,7 +84,7 @@ step += 1
 
 # Step: Calculate dataset size (filtered)
 progress_bar.set_description(steps[step])
-dataset_size = calculate_dataset_size(csv_path_df2, 'Dataset after filtering viral50 records')
+calculate_dataset_size(csv_path_df2, 'Dataset after filtering viral50 records')
 progress_bar.update(1)
 
 # Step: Remove Records released before 2017
@@ -95,7 +95,7 @@ step += 1
 
 # Step: Calculate dataset size (filtered)
 progress_bar.set_description(steps[step])
-dataset_size = calculate_dataset_size(csv_path_df2, 'Dataset after filtering viral50 records')
+calculate_dataset_size(csv_path_df2, 'Dataset after filtering records released before 2017')
 progress_bar.update(1)
 
 # Step: Select required columns
@@ -110,6 +110,7 @@ csv_path_df4 = (
     csv_path_df3.groupBy(col('track_id'), col('region'))
     .agg(first('release_date').alias('release_date'), collect_list('date').alias('dates'))
 )
+calculate_dataset_size(csv_path_df4, 'Dataset after grouping by track_id and region')
 progress_bar.update(1)
 step += 1
 
@@ -125,21 +126,33 @@ question1_df2 = question1_df1.withColumn('days_until_chart', datediff(col('first
 progress_bar.update(1)
 step += 1
 
-# Step: Remove records where release_date is before first_chart_day or release_date is null
+# Step: Remove records where release_date is null
 progress_bar.set_description(steps[step])
 question1_df2 = question1_df2.filter(
-    (col('release_date').isNotNull()) &  
-    (col('release_date') <= col('first_chart_day')) &
-    (col('release_date') != '0000') 
+    col('release_date').isNotNull()
 )
+calculate_dataset_size(question1_df2, 'Dataset after filtering records with null release_date')
 progress_bar.update(1)
 step += 1
 
-# Step: Calculate dataset size (filtered)
+# Step: Remove records where release_date is before first_chart_day
 progress_bar.set_description(steps[step])
-dataset_size = calculate_dataset_size(question1_df2, 'Dataset after filtering faulty release date records')
+question1_df2 = question1_df2.filter(
+    col('release_date') <= col('first_chart_day')
+)
+calculate_dataset_size(question1_df2, 'Dataset after filtering records with release_date before first_chart_day')
 progress_bar.update(1)
+step += 1
 
+
+# Step: Remove records where release_date is "0000"
+progress_bar.set_description(steps[step])
+question1_df2 = question1_df2.filter(
+    col('release_date') != '0000'
+)
+calculate_dataset_size(question1_df2, 'Dataset after filtering records with release_date as "0000"')
+progress_bar.update(1)
+step += 1
 
 # Step: Find the global average, median, min, and max
 progress_bar.set_description(steps[step])
